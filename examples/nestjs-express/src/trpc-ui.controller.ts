@@ -5,10 +5,9 @@ import {
   Inject,
   NotFoundException,
 } from '@nestjs/common';
-import { AppRouterHost } from 'nestjs-trpc'; // Assuming AppRouterHost is exported
+import { AppRouterHost } from 'nestjs-trpc';
 import type { Response } from 'express';
-// import { renderTrpcPanel } from 'trpc-ui'; // Will be dynamically imported
-import { AppRouter } from './@generated/server'; // Import the AppRouter type
+import { AppRouter } from './@generated/server'; // Assuming similar path for generated router
 
 @Controller('trpc-ui')
 export class TrpcUiController {
@@ -32,8 +31,8 @@ export class TrpcUiController {
       url: 'http://localhost:8080/trpc', // Adjust if your port/path is different
       // transformer: "superjson", // Add if you use superjson
       meta: {
-        title: 'NestJS-tRPC SSE Example UI',
-        description: 'tRPC UI for the example NestJS app with SSE support.',
+        title: 'NestJS-tRPC Express Example UI',
+        description: 'tRPC UI for the example NestJS Express app.',
       },
     });
 

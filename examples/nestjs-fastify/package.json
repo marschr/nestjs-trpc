@@ -24,6 +24,7 @@
     "nestjs-trpc": "workspace:*",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "trpc-ui": "^1.0.15",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { ProtectedMiddleware } from './protected.middleware';
 import { AppContext } from './app.context';
 import { LoggingMiddleware } from './logging.middleware';
+import { TrpcUiController } from './trpc-ui.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LoggingMiddleware } from './logging.middleware';
       context: AppContext,
     }),
   ],
+  controllers: [TrpcUiController],
   providers: [
     UserRouter,
     AppContext,
