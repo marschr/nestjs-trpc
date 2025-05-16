@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AppRouterHost } from 'nestjs-trpc';
 import type { Response } from 'express';
-import { AppRouter } from './@generated/server'; // Assuming similar path for generated router
+import { AnyTRPCRouter } from '@trpc/server'; // Changed from AnyRouter to AnyTRPCRouter
 
 @Controller('trpc-ui')
 export class TrpcUiController {
@@ -20,9 +20,11 @@ export class TrpcUiController {
     // Dynamically import renderTrpcPanel
     const { renderTrpcPanel } = await import('trpc-ui');
 
-    const appRouterInstance = this.appRouterHost.appRouter as AppRouter;
+    // Use appRouter directly, it's already AnyTRPCRouter. Cast if needed by renderTrpcPanel.
+    const appRouterInstance: AnyTRPCRouter = this.appRouterHost.appRouter;
 
     if (!appRouterInstance) {
+      // This check might be redundant if AppRouterHost throws when appRouter is accessed before init
       res.status(500).send('tRPC AppRouter not available');
       return;
     }
