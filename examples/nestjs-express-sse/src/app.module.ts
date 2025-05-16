@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { UserRouter } from './user.router';
 import { SSERouter } from './sse.router';
-import { TRPCModule } from 'nestjs-trpc';
+import { TRPCModule, AppRouterHost } from 'nestjs-trpc';
 import { UserService } from './user.service';
 import { ProtectedMiddleware } from './protected.middleware';
 import { AppContext } from './app.context';
+import { TrpcUiController } from './trpc-ui.controller';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AppContext } from './app.context';
       context: AppContext,
     }),
   ],
+  controllers: [TrpcUiController],
   providers: [
     UserRouter,
     SSERouter,
