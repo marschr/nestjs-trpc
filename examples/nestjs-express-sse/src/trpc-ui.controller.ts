@@ -1,14 +1,7 @@
-import {
-  Controller,
-  Get,
-  Res,
-  Inject,
-  NotFoundException,
-} from '@nestjs/common';
-import { AppRouterHost } from 'nestjs-trpc'; // Assuming AppRouterHost is exported
+import { Controller, Get, Res, Inject } from '@nestjs/common';
+import { AppRouterHost } from 'nestjs-trpc';
 import type { Response } from 'express';
-// import { renderTrpcPanel } from 'trpc-ui'; // Will be dynamically imported
-import { AppRouter } from './@generated/server'; // Import the AppRouter type
+import { AnyTRPCRouter } from '@trpc/server'; // Changed from AppRouter from generated
 
 @Controller('trpc-ui')
 export class TrpcUiController {
@@ -18,10 +11,9 @@ export class TrpcUiController {
 
   @Get()
   async getPanel(@Res() res: Response) {
-    // Dynamically import renderTrpcPanel
     const { renderTrpcPanel } = await import('trpc-ui');
 
-    const appRouterInstance = this.appRouterHost.appRouter as AppRouter;
+    const appRouterInstance: AnyTRPCRouter = this.appRouterHost.appRouter;
 
     if (!appRouterInstance) {
       res.status(500).send('tRPC AppRouter not available');
@@ -29,11 +21,10 @@ export class TrpcUiController {
     }
 
     const panelHtml = renderTrpcPanel(appRouterInstance, {
-      url: 'http://localhost:8080/trpc', // Adjust if your port/path is different
-      // transformer: "superjson", // Add if you use superjson
+      url: 'http://localhost:8080/trpc',
       meta: {
         title: 'NestJS-tRPC SSE Example UI',
-        description: 'tRPC UI for the example NestJS app with SSE support.',
+        description: 'tRPC UI for the example NestJS Express SSE app.',
       },
     });
 
