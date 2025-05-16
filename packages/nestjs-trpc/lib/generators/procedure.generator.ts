@@ -24,7 +24,8 @@ export class ProcedureGenerator {
     const decorator = decorators.find(
       (decorator) =>
         decorator.name === ProcedureType.Mutation ||
-        decorator.name === ProcedureType.Query,
+        decorator.name === ProcedureType.Query ||
+        decorator.name === ProcedureType.Subscription,
     );
 
     if (!decorator) {
@@ -35,7 +36,9 @@ export class ProcedureGenerator {
       .map(([key, value]) => `.${key}(${value})`)
       .join('');
 
-    return `${name}: publicProcedure${decoratorArgumentsArray}.${decorator.name.toLowerCase()}(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any )`;
+    const procedureMethod = decorator.name.toLowerCase();
+
+    return `${name}: publicProcedure${decoratorArgumentsArray}.${procedureMethod}(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any )`;
   }
 
   public flattenZodSchema(

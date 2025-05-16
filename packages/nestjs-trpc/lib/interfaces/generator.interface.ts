@@ -19,12 +19,18 @@ export interface ProcedureGeneratorMetadata {
   decorators: Array<DecoratorGeneratorMetadata>;
 }
 
+/**
+ * @deprecated This type is deprecated and will be removed in a future version.
+ * Please use the `ProcedureGeneratorMetadata` type instead for more accurate representation.
+ */
+export type DecoratorMetadatas = Record<
+  string, // Procedure method name
+  DecoratorGeneratorMetadata[] // Decorators applied to this procedure
+>;
+
 export interface DecoratorGeneratorMetadata {
-  name: 'Query' | 'Mutation';
-  arguments: {
-    input?: string;
-    output?: string;
-  };
+  name: 'Query' | 'Mutation' | 'Subscription';
+  arguments: Record<string, string>;
 }
 
 export interface SourceFileImportsMap {

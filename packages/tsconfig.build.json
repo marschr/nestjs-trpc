@@ -5,7 +5,7 @@
     "incremental": false,
     "declarationMap": true,
     "noImplicitAny": false,
-    "importHelpers": true,
+    // "importHelpers": true,
     "esModuleInterop": true,
     "removeComments": false,
     "noLib": false,

@@ -1,5 +1,5 @@
 {
-  "name": "example-nestjs-express",
+  "name": "example-nestjs-express-sse",
   "version": "1.0.0",
   "description": "",
   "main": "./src/main.ts",

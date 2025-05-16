@@ -1,8 +1,11 @@
-import { ProcedureParams } from '@trpc/server';
-import { ResolveOptions } from '@trpc/server/dist/core/internals/utils';
+import type { ProcedureType, AnyTRPCRootTypes } from '@trpc/server';
 
-export type ProcedureOptions = ResolveOptions<ProcedureParams> & {
-  type: string;
-  path: string;
-  rawInput: string;
+export type ProcedureOptions = {
+  type?: ProcedureType;
+  path?: string;
+  rawInput?: unknown;
+  input?: unknown;
+  output?: unknown;
+  meta?: AnyTRPCRootTypes['meta'];
+  [key: string]: any;
 };

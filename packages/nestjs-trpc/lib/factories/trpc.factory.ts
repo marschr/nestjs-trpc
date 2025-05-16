@@ -1,9 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { MergeRouters } from '@trpc/server/dist/core/internals/mergeRouters';
-import { AnyRouterDef } from '@trpc/server/dist/core/router';
+// import { MergeRouters } from '@trpc/server/dist/core/internals/mergeRouters'; // Removed
+// import { AnyRouterDef } from '@trpc/server/dist/core/router'; // Removed
 import { RouterFactory } from './router.factory';
-import { TRPCRouter } from '../interfaces/factory.interface';
-import { AnyRouter, ProcedureBuilder } from '@trpc/server';
+import {
+  TRPCRouter,
+  TRPCPublicProcedure,
+} from '../interfaces/factory.interface';
+import { AnyRouter } from '@trpc/server';
 
 @Injectable()
 export class TRPCFactory {
@@ -12,8 +15,8 @@ export class TRPCFactory {
 
   serializeAppRoutes(
     router: TRPCRouter,
-    procedure: ProcedureBuilder<any>,
-  ): MergeRouters<Array<AnyRouter>, AnyRouterDef> {
+    procedure: TRPCPublicProcedure,
+  ): AnyRouter {
     const routerSchema = this.routerFactory.serializeRoutes(router, procedure);
     return router(routerSchema);
   }

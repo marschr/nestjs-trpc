@@ -26,26 +26,39 @@ export class DecoratorGenerator {
       (array, decorator) => {
         const decoratorName = decorator.getName();
 
-        if (decoratorName === 'Query' || decoratorName === 'Mutation') {
+        if (
+          decoratorName === 'Query' ||
+          decoratorName === 'Mutation' ||
+          decoratorName === 'Subscription'
+        ) {
           const input = this.getDecoratorPropertyValue(
             decorator,
             'input',
             sourceFile,
             project,
           );
-          const output = this.getDecoratorPropertyValue(
-            decorator,
-            'output',
-            sourceFile,
-            project,
-          );
+
+          let output: string | null = null;
+          if (decoratorName === 'Query' || decoratorName === 'Mutation') {
+            output = this.getDecoratorPropertyValue(
+              decorator,
+              'output',
+              sourceFile,
+              project,
+            );
+          }
+
+          const procedureArguments: Record<string, string> = {};
+          if (input) {
+            procedureArguments.input = input;
+          }
+          if (output) {
+            procedureArguments.output = output;
+          }
 
           array.push({
             name: decoratorName,
-            arguments: {
-              ...(input ? { input } : {}),
-              ...(output ? { output } : {}),
-            },
+            arguments: procedureArguments,
           });
         } else if (
           decoratorName === 'UseMiddlewares' ||

@@ -1,9 +1,34 @@
-import { RootConfigTypes } from '@trpc/server/dist/core/internals/config';
-import { ErrorFormatter } from '@trpc/server/dist/error/formatter';
-import { TRPCErrorShape } from '@trpc/server/dist/rpc';
+// import { RootConfigTypes } from '@trpc/server/dist/core/internals/config'; // Removed
+import type { AnyRouter, CombinedDataTransformer } from '@trpc/server'; // ErrorFormatter and DefaultErrorShape removed from this line and the one below
+import type { inferRouterContext } from '@trpc/server';
 import { TRPCContext } from './context.interface';
 import type { Class } from 'type-fest';
 import { ZodTypeAny } from 'zod';
+
+// Local definition for DefaultErrorShape (as it's not directly exported)
+interface NestTRPCDefaultErrorShape {
+  message: string;
+  code: string; // Simplified from TRPC_ERROR_CODE_KEY
+  data: {
+    code: string; // Simplified from TRPC_ERROR_CODE_NUMBER
+    httpStatus: number;
+    path?: string;
+    stack?: string;
+  };
+}
+
+// Local definition for ErrorFormatter (as it's not directly exported)
+type NestTRPCErrorFormatter<
+  TContext,
+  TShape extends NestTRPCDefaultErrorShape,
+> = (opts: {
+  error: any /* TRPCError */;
+  type: string;
+  path?: string;
+  input?: unknown;
+  ctx?: TContext;
+  shape: TShape;
+}) => TShape;
 
 export type SchemaImports =
   | ((...args: Array<unknown>) => unknown)
@@ -45,14 +70,14 @@ export interface TRPCModuleOptions {
    * Use custom error formatting
    * @link https://trpc.io/docs/error-formatting
    */
-  errorFormatter?: ErrorFormatter<
-    RootConfigTypes['ctx'],
-    TRPCErrorShape<number> & { [key: string]: any }
+  errorFormatter?: NestTRPCErrorFormatter<
+    any, // TContext placeholder
+    NestTRPCDefaultErrorShape
   >;
 
   /**
    * Use a data transformer
    * @link https://trpc.io/docs/data-transformers
    */
-  transformer?: RootConfigTypes['transformer'];
+  transformer?: CombinedDataTransformer;
 }
