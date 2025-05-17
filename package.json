@@ -15,9 +15,7 @@
     "prepublish:next": "npm run build",
     "publish:next": "lerna publish --dist-tag next",
     "prepack": "pinst --disable",
-    "postinstall": "husky",
-    "postpack": "pinst --enable",
-    "prepare": "husky"
+    "postpack": "pinst --enable"
   },
   "author": {
     "name": "Kevin Edry",
