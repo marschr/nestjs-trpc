@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Get,
-  Res,
-  Inject,
-  NotFoundException,
-} from '@nestjs/common';
+import { Controller, Get, Res, Inject } from '@nestjs/common';
 import { AppRouterHost } from 'nestjs-trpc';
-// For Fastify, Res type might be from 'fastify', but NestJS abstracts it.
-// We'll use generic 'any' or rely on NestJS to correctly type 'res.type().send()'.
-// For simplicity, we'll keep 'Response' from express and assume NestJS handles it.
-import type { Response } from 'express'; // Or import FastifyReply and adjust if needed
-import { AppRouter } from './@generated/server'; // Assuming similar path for generated router
+import type { FastifyReply } from 'fastify'; // Specific to Fastify
+import { AnyTRPCRouter } from '@trpc/server';
 
 @Controller('trpc-ui')
 export class TrpcUiController {
@@ -19,16 +10,15 @@ export class TrpcUiController {
   ) {}
 
   @Get()
-  async getPanel(@Res() res: Response) {
-    // res type might need to be FastifyReply for strictness
+  async getPanel(@Res() reply: FastifyReply) {
     // Dynamically import renderTrpcPanel
     const { renderTrpcPanel } = await import('trpc-ui');
 
-    const appRouterInstance = this.appRouterHost.appRouter as AppRouter;
+    const appRouterInstance: AnyTRPCRouter = this.appRouterHost.appRouter;
 
     if (!appRouterInstance) {
       // For Fastify, res.status().send() is the pattern
-      (res as any).status(500).send('tRPC AppRouter not available');
+      reply.status(500).send('tRPC AppRouter not available');
       return;
     }
 
@@ -41,6 +31,6 @@ export class TrpcUiController {
       },
     });
     // For Fastify, res.type().send() is correct via NestJS adapter
-    (res as any).type('text/html').send(panelHtml);
+    reply.type('text/html').send(panelHtml);
   }
 }
