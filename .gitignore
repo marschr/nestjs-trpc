@@ -34,3 +34,4 @@ test/**/dist
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+packages/nestjs-trpc/package.tgz

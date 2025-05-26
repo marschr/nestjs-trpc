@@ -129,4 +129,12 @@ This version of `nestjs-trpc` has been updated to support tRPC v11. The upgrade 
 
 7.  **Developer Tools (e.g., `trpc-panel`):** External tools that introspect tRPC routers, like `trpc-panel`, may require updates or might not be fully compatible with tRPC v11's router structures yet. Issues with such tools don't necessarily indicate a problem with your core tRPC setup if the API itself is functional.
 
+8.  **Subscription Output Schema Handling:** The code generator for `nestjs-trpc` now correctly processes and includes the `output` Zod schema provided in the `@Subscription` decorator. This ensures that your subscription procedures are generated with the correct output types.
+
+9.  **Flexible Subscription Resolvers:** The generator has been updated to support both tRPC `observable` and `async function*` style resolvers for subscriptions. This aligns with tRPC v11's capabilities and ensures correct runtime behavior for streaming endpoints.
+
+10. **`zAsyncIterable` for Streaming Endpoints:** When defining subscriptions that stream data (e.g., Server-Sent Events), users should specify the output schema using a helper like `zAsyncIterable` directly within the `@Subscription` decorator. For example: `@Subscription({ output: zAsyncIterable({ yield: YourItemSchema }) })`. `nestjs-trpc` will use this schema as provided in the generated code. You will need to ensure `zAsyncIterable` (or your chosen utility) is available in your project and correctly imported. For more details on `zAsyncIterable` and output validation for subscriptions, refer to the [official tRPC documentation](https://trpc.io/docs/server/subscriptions#example-with-zod).
+
+11. **Automatic Imports for Subscriptions:** The main generated tRPC router file (`server.ts` by default) will now automatically include `import { observable } from '@trpc/server/observable';` if your application defines any subscription procedures. Furthermore, if "zAsyncIterable" (case-sensitive) is detected in the string representation of any procedure's input or output arguments within decorators, an attempt will be made to import it (e.g., `import { zAsyncIterable } from '../zAsyncIterable';`). Ensure the path to your `zAsyncIterable` helper is correct relative to your generated files, or adjust the import path in `static.generator.ts` if necessary.
+
 ---
