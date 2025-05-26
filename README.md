@@ -1,1 +1,1 @@
-packages/nestjs-trpc/README.md
+./packages/nestjs-trpc/README.md
