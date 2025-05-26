@@ -6,8 +6,12 @@ import {
   VariableDeclarationKind,
 } from 'ts-morph';
 import { Injectable } from '@nestjs/common';
-import { SourceFileImportsMap } from '../interfaces/generator.interface';
+import {
+  SourceFileImportsMap,
+  ProcedureGeneratorMetadata,
+} from '../interfaces/generator.interface';
 import * as path from 'node:path';
+import { ProcedureType } from '../trpc.enum';
 
 @Injectable()
 export class StaticGenerator {
@@ -33,6 +37,36 @@ export class StaticGenerator {
         declarations: [{ name: 'publicProcedure', initializer: 't.procedure' }],
       },
     ]);
+  }
+
+  public addProcedureSpecificImports(
+    sourceFile: SourceFile,
+    procedures: Array<ProcedureGeneratorMetadata>,
+  ): void {
+    let needsZAsyncIterable = false;
+
+    for (const proc of procedures) {
+      const firstDecorator = proc.decorators[0];
+      if (firstDecorator) {
+        if (
+          (firstDecorator.arguments.input &&
+            firstDecorator.arguments.input.includes('zAsyncIterable')) ||
+          (firstDecorator.arguments.output &&
+            firstDecorator.arguments.output.includes('zAsyncIterable'))
+        ) {
+          needsZAsyncIterable = true;
+        }
+      }
+    }
+
+    if (needsZAsyncIterable) {
+      const relativePath = '../zAsyncIterable';
+      sourceFile.addImportDeclaration({
+        kind: StructureKind.ImportDeclaration,
+        moduleSpecifier: relativePath,
+        namedImports: ['zAsyncIterable'],
+      });
+    }
   }
 
   public addSchemaImports(

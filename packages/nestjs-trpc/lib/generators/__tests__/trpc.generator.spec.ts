@@ -71,6 +71,7 @@ describe('TRPCGenerator', () => {
           useValue: {
             generateStaticDeclaration: jest.fn(),
             addSchemaImports: jest.fn(),
+            addProcedureSpecificImports: jest.fn(),
           },
         },
         {

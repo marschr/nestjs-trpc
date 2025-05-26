@@ -16,7 +16,10 @@ import { RouterFactory } from '../factories/router.factory';
 import { MiddlewareFactory } from '../factories/middleware.factory';
 import { ProcedureFactory } from '../factories/procedure.factory';
 import { TRPC_MODULE_CALLER_FILE_PATH } from '../trpc.constants';
-import { SourceFileImportsMap } from '../interfaces/generator.interface';
+import {
+  SourceFileImportsMap,
+  ProcedureGeneratorMetadata,
+} from '../interfaces/generator.interface';
 import { StaticGenerator } from './static.generator';
 import { ImportsScanner } from '../scanners/imports.scanner';
 import {
@@ -103,6 +106,17 @@ export class TRPCGenerator implements OnModuleInit {
       const routersMetadata = this.serializerHandler.serializeRouters(
         mappedRoutesAndProcedures,
         this.project,
+      );
+
+      const allProceduresMetadata: ProcedureGeneratorMetadata[] =
+        routersMetadata.reduce(
+          (acc, routerMeta) => acc.concat(routerMeta.procedures),
+          [] as ProcedureGeneratorMetadata[],
+        );
+
+      this.staticGenerator.addProcedureSpecificImports(
+        this.appRouterSourceFile,
+        allProceduresMetadata,
       );
 
       const routersStringDeclarations =

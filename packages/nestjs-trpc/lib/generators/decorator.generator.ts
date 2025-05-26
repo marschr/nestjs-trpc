@@ -39,7 +39,11 @@ export class DecoratorGenerator {
           );
 
           let output: string | null = null;
-          if (decoratorName === 'Query' || decoratorName === 'Mutation') {
+          if (
+            decoratorName === 'Query' ||
+            decoratorName === 'Mutation' ||
+            decoratorName === 'Subscription'
+          ) {
             output = this.getDecoratorPropertyValue(
               decorator,
               'output',
