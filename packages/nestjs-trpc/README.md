@@ -31,6 +31,7 @@
   </figure>
 </div>
 
+
 ---
 ## Migration from tRPC v10 / Upgrading `nestjs-trpc` for tRPC v11 Support
 
