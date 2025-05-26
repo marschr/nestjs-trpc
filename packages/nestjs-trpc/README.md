@@ -1,3 +1,6 @@
+# This repo is an attempt to migrate the nestjs-trpc library to tRPC v11. (more info below)
+
+
 <a href="https://nestjs-trpc.io/" target="_blank" rel="noopener">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://i.imgur.com/JvsOXCg.png" />
@@ -27,6 +30,36 @@
     </figcaption>
   </figure>
 </div>
+
+---
+## Migration from tRPC v10 / Upgrading `nestjs-trpc` for tRPC v11 Support
+
+This version of `nestjs-trpc` has been updated to support tRPC v11. The upgrade process involved several key changes and has some important takeaways for users and contributors:
+
+1.  **tRPC v11 Internal Structure:** tRPC v11 refactored its internal structure. Many types previously available via deep imports (`@trpc/server/dist/...`) are no longer accessible or have moved. Rely on the main `@trpc/server` entry point for imports. For types not directly exported, structural typing, `any`, or inference from instances might be needed.
+
+2.  **`ProcedureBuilder` Type:** Importing `ProcedureBuilder` as a named type from `@trpc/server` proved problematic in our build environment. For typing procedure builder instances (e.g., `initTRPC.create().procedure`), using `typeof t.procedure` (where `t` is an `initTRPC` instance from `@trpc/server`) is more robust. In `nestjs-trpc`'s core interfaces, `TRPCPublicProcedure` was ultimately typed as `any` to ensure stability; this is a type safety trade-off.
+
+3.  **Procedure Definition Introspection (`_def.type`):** The internal definition (`_def`) of tRPC procedures has changed. For example, to check a procedure's type, use `_def.type === 'query'` (or `'mutation'`, `'subscription'`) instead of properties like `_def.query` which might have existed in v10.
+
+4.  **`createContext` Options (User Breaking Change):** If you provide a custom context class for `nestjs-trpc`, its `create(opts)` method will now receive an `opts` object that includes an `info: TRPCRequestInfo` property, in addition to `req` and `res`. You must update your context class to accommodate this.
+
+5.  **Router Construction in `nestjs-trpc`:** This library now constructs a single, nested JavaScript object representing the entire router schema. This object is then passed to one top-level `tRPC.router()` call, leveraging tRPC v11's capability to build the router tree from this structure.
+
+6.  **Dependency Version Consistency:** Ensure that your main application and any related examples or packages consistently depend on the same major version of `@trpc/server` (e.g., v11). Mismatched versions can lead to subtle runtime errors.
+
+7.  **Developer Tools (e.g., `trpc-panel`):** External tools that introspect tRPC routers, like `trpc-panel`, may require updates or might not be fully compatible with tRPC v11's router structures yet. Issues with such tools don't necessarily indicate a problem with your core tRPC setup if the API itself is functional.
+
+8.  **Subscription Output Schema Handling:** The code generator for `nestjs-trpc` now correctly processes and includes the `output` Zod schema provided in the `@Subscription` decorator. This ensures that your subscription procedures are generated with the correct output types.
+
+9.  **Flexible Subscription Resolvers:** The generator has been updated to support both tRPC `observable` and `async function*` style resolvers for subscriptions. This aligns with tRPC v11's capabilities and ensures correct runtime behavior for streaming endpoints.
+
+10. **`zAsyncIterable` for Streaming Endpoints:** When defining subscriptions that stream data (e.g., Server-Sent Events), users should specify the output schema using a helper like `zAsyncIterable` directly within the `@Subscription` decorator. For example: `@Subscription({ output: zAsyncIterable({ yield: YourItemSchema }) })`. `nestjs-trpc` will use this schema as provided in the generated code. You will need to ensure `zAsyncIterable` (or your chosen utility) is available in your project and correctly imported. For more details on `zAsyncIterable` and output validation for subscriptions, refer to the [official tRPC documentation](https://trpc.io/docs/server/subscriptions#example-with-zod).
+
+11. **Automatic Imports for Subscriptions:** The main generated tRPC router file (`server.ts` by default) will now automatically include `import { observable } from '@trpc/server/observable';` if your application defines any subscription procedures. Furthermore, if "zAsyncIterable" (case-sensitive) is detected in the string representation of any procedure's input or output arguments within decorators, an attempt will be made to import it (e.g., `import { zAsyncIterable } from '../zAsyncIterable';`). Ensure the path to your `zAsyncIterable` helper is correct relative to your generated files, or adjust the import path in `static.generator.ts` if necessary.
+
+---
+
 
 ## Introduction
 
@@ -111,30 +144,3 @@ class UserRouter {
   </p>
 </a>
 
-## Migrating from tRPC v10 / Upgrading `nestjs-trpc` for tRPC v11 Support
-
-This version of `nestjs-trpc` has been updated to support tRPC v11. The upgrade process involved several key changes and has some important takeaways for users and contributors:
-
-1.  **tRPC v11 Internal Structure:** tRPC v11 refactored its internal structure. Many types previously available via deep imports (`@trpc/server/dist/...`) are no longer accessible or have moved. Rely on the main `@trpc/server` entry point for imports. For types not directly exported, structural typing, `any`, or inference from instances might be needed.
-
-2.  **`ProcedureBuilder` Type:** Importing `ProcedureBuilder` as a named type from `@trpc/server` proved problematic in our build environment. For typing procedure builder instances (e.g., `initTRPC.create().procedure`), using `typeof t.procedure` (where `t` is an `initTRPC` instance from `@trpc/server`) is more robust. In `nestjs-trpc`'s core interfaces, `TRPCPublicProcedure` was ultimately typed as `any` to ensure stability; this is a type safety trade-off.
-
-3.  **Procedure Definition Introspection (`_def.type`):** The internal definition (`_def`) of tRPC procedures has changed. For example, to check a procedure's type, use `_def.type === 'query'` (or `'mutation'`, `'subscription'`) instead of properties like `_def.query` which might have existed in v10.
-
-4.  **`createContext` Options (User Breaking Change):** If you provide a custom context class for `nestjs-trpc`, its `create(opts)` method will now receive an `opts` object that includes an `info: TRPCRequestInfo` property, in addition to `req` and `res`. You must update your context class to accommodate this.
-
-5.  **Router Construction in `nestjs-trpc`:** This library now constructs a single, nested JavaScript object representing the entire router schema. This object is then passed to one top-level `tRPC.router()` call, leveraging tRPC v11's capability to build the router tree from this structure.
-
-6.  **Dependency Version Consistency:** Ensure that your main application and any related examples or packages consistently depend on the same major version of `@trpc/server` (e.g., v11). Mismatched versions can lead to subtle runtime errors.
-
-7.  **Developer Tools (e.g., `trpc-panel`):** External tools that introspect tRPC routers, like `trpc-panel`, may require updates or might not be fully compatible with tRPC v11's router structures yet. Issues with such tools don't necessarily indicate a problem with your core tRPC setup if the API itself is functional.
-
-8.  **Subscription Output Schema Handling:** The code generator for `nestjs-trpc` now correctly processes and includes the `output` Zod schema provided in the `@Subscription` decorator. This ensures that your subscription procedures are generated with the correct output types.
-
-9.  **Flexible Subscription Resolvers:** The generator has been updated to support both tRPC `observable` and `async function*` style resolvers for subscriptions. This aligns with tRPC v11's capabilities and ensures correct runtime behavior for streaming endpoints.
-
-10. **`zAsyncIterable` for Streaming Endpoints:** When defining subscriptions that stream data (e.g., Server-Sent Events), users should specify the output schema using a helper like `zAsyncIterable` directly within the `@Subscription` decorator. For example: `@Subscription({ output: zAsyncIterable({ yield: YourItemSchema }) })`. `nestjs-trpc` will use this schema as provided in the generated code. You will need to ensure `zAsyncIterable` (or your chosen utility) is available in your project and correctly imported. For more details on `zAsyncIterable` and output validation for subscriptions, refer to the [official tRPC documentation](https://trpc.io/docs/server/subscriptions#example-with-zod).
-
-11. **Automatic Imports for Subscriptions:** The main generated tRPC router file (`server.ts` by default) will now automatically include `import { observable } from '@trpc/server/observable';` if your application defines any subscription procedures. Furthermore, if "zAsyncIterable" (case-sensitive) is detected in the string representation of any procedure's input or output arguments within decorators, an attempt will be made to import it (e.g., `import { zAsyncIterable } from '../zAsyncIterable';`). Ensure the path to your `zAsyncIterable` helper is correct relative to your generated files, or adjust the import path in `static.generator.ts` if necessary.
-
----
