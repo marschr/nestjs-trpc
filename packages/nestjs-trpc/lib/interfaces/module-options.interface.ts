@@ -1,6 +1,10 @@
 // import { RootConfigTypes } from '@trpc/server/dist/core/internals/config'; // Removed
 import type { AnyRouter, CombinedDataTransformer } from '@trpc/server'; // ErrorFormatter and DefaultErrorShape removed from this line and the one below
 import type { inferRouterContext } from '@trpc/server';
+import type {
+  SSEPingOptions,
+  SSEClientOptions,
+} from '@trpc/server/dist/unstable-core-do-not-import/stream/sse';
 import { TRPCContext } from './context.interface';
 import type { Class } from 'type-fest';
 import { ZodTypeAny } from 'zod';
@@ -34,6 +38,32 @@ export type SchemaImports =
   | ((...args: Array<unknown>) => unknown)
   | object
   | ZodTypeAny;
+
+/**
+ * @internal
+ */
+export interface TRPCSSEOptions {
+  /**
+   * SSE Ping options.
+   */
+  ping?: SSEPingOptions;
+  /**
+   * Maximum duration in milliseconds for the request before ending the stream.
+   * @default undefined
+   */
+  maxDurationMs?: number;
+  /**
+   * End the request immediately after data is sent.
+   * Only useful for serverless runtimes that do not support streaming responses.
+   * @default false
+   */
+  emitAndEndImmediately?: boolean;
+  /**
+   * Client-specific SSE options - these will be sent to the client as part of the first message.
+   * @default {}
+   */
+  client?: SSEClientOptions;
+}
 
 /**
  * "TRPCModule" options object.
@@ -80,4 +110,9 @@ export interface TRPCModuleOptions {
    * @link https://trpc.io/docs/data-transformers
    */
   transformer?: CombinedDataTransformer;
+
+  /**
+   * Server-Sent Events (SSE) options.
+   */
+  sse?: TRPCSSEOptions;
 }

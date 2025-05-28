@@ -62,6 +62,7 @@ export class TRPCDriver<
       ...(options.errorFormatter != null
         ? { errorFormatter: options.errorFormatter }
         : {}),
+      ...(options.sse != null ? { sse: options.sse } : {}),
     });
 
     const appRouter: AnyRouter = this.trpcFactory.serializeAppRoutes(
