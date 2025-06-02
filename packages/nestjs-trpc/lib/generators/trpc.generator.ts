@@ -125,7 +125,8 @@ export class TRPCGenerator implements OnModuleInit {
         );
 
       this.appRouterSourceFile.addStatements(/* ts */ `
-        const appRouter = t.router({${routersStringDeclarations}});
+        export const appRouter = t.router({${routersStringDeclarations}});
+        export const createCallerFactory = t.createCallerFactory;
         export type AppRouter = typeof appRouter;
       `);
 
